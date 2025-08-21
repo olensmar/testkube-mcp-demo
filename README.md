@@ -1,162 +1,83 @@
-# Calculator Service 🧮
+# Testkube MCP Server Demo
 
-A modern, responsive calculator web application with REST API endpoints, built with Flask and designed for cloud-native deployments.
+A demonstration of AI-powered test failure analysis using Testkube MCP Server with GitHub Copilot.
 
-![Calculator Service](https://img.shields.io/badge/Python-3.11-blue.svg)
-![Flask](https://img.shields.io/badge/Flask-2.3.3-green.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-Compatible-326CE5.svg)
+## 🎯 What This Demo Shows
 
-## ✨ Features
+### Testkube MCP Server
 
-- **🎨 Modern UI**: Responsive calculator interface with keyboard support
-- **🚀 REST API**: Full-featured API endpoints for all operations
-- **⌨️ Keyboard Navigation**: Complete keyboard support for accessibility
-- **🔒 Input Validation**: Comprehensive error handling and validation
-- **🐳 Docker Ready**: Containerized for easy deployment
-- **☸️ Kubernetes Compatible**: Production-ready for cloud deployments
-- **📱 Mobile Responsive**: Works seamlessly on all device sizes
+- Natural language interaction with your Kubernetes testing infrastructure
+- Direct test execution from VSCode via conversational AI
+- Automatic collection of test results, logs, and failure details
 
-## 🎯 Use Cases
+### GitHub Copilot Agent mode
 
-This calculator service was built as a **cloud-native demo application** for:
+- Contextual analysis of test failures using your source code
+- Intelligent correlation between test results and application logic
+- Code-level root cause identification with precise line numbers
+- Automated fix suggestions and PR creation assistance
 
-- **Testing Frameworks**: Perfect for API testing, integration testing, and end-to-end testing
-- **Kubernetes Demos**: Ideal for demonstrating deployments, services, and scaling
-- **CI/CD Pipelines**: Simple application for testing automation workflows
-- **Monitoring & Observability**: Great for testing logging, metrics, and tracing
-- **Load Testing**: Multiple endpoints for performance testing scenarios
-- **Security Testing**: API endpoints for security scanning and validation
+### The Complete AI Workflow
 
-## 🛠️ Technology Stack
+1. **Execute**: Run TestWorkflows using natural language commands
+2. **Analyze**: AI examines test failure patterns and error messages  
+3. **Correlate**: AI scans your source code to find the exact bug
+4. **Suggest**: AI recommends specific code changes needed
+5. **Automate**: AI helps create PRs with the proposed fixes
 
-- **Backend**: Python 3.11 + Flask
-- **Frontend**: Vanilla JavaScript + Modern CSS
-- **Containerization**: Docker
-- **Deployment**: Kubernetes-ready
-- **Production Server**: Gunicorn
+## 🛠️ Tech Stack
+
+- **Testkube MCP Server**: Test execution and analysis
+- **GitHub Copilot Pro**: AI assistant in agent mode
+- **VSCode**: Development environment
+- **Kubernetes**: Container platform
+- **Calculator Service**: Simple Flask app with an intentional bug
+
+## 🐛 The Bug
+
+The calculator's `/add` endpoint multiplies instead of adding:
+
+```python
+# Bug in app.py
+def add(a, b):
+    return a * b  # Should be: return a + b
+```
 
 ## 🚀 Quick Start
 
-### Local Development
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/yourusername/calculator-service.git
-   cd calculator-service
-   ```
-
-2. **Set up virtual environment**
-
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-4. **Run the application**
-
-   ```bash
-   python app.py
-   ```
-
-5. **Access the application**
-   - Web UI: [http://localhost:5000](http://localhost:5000)
-   - API Health Check: [http://localhost:5000/health](http://localhost:5000/health)
-
-### Docker Deployment
-
-#### Build the image
-
-```bash
-docker build -t calculator-service .
-```
-
-#### Run the container
-
-```bash
-docker run -p 5000:5000 calculator-service
-```
-
-#### Using pre-built image
-
-```bash
-docker run -p 5000:5000 atulinfracloud/calculator-service:latest
-```
-
-### Kubernetes Deployment
+### Deploy the buggy calculator
 
 ```bash
 kubectl apply -f k8s/
 ```
 
-## 📚 API Documentation
+### Configure Testkube MCP Server in VSCode
 
-### Health Check
+Run the demo with Copilot Agent:
 
-```http
-GET /health
+"Can you run testworkflow calculator-addition-test?"
+
+→ Test fails: expected 8, got 15
+
+"Can you find the root cause in my code?"
+
+→ Copilot finds the multiply vs add bug
+
+In app.py, the `add()` function uses
+`multiplication (*)` instead of `addition (+)`:
+
+```python
+def add(a, b):
+            return a * b  # Should be: return a + b
 ```
 
-**Response:**
+"Can you fix this and create a PR?"
 
-```json
-{
-  "status": "healthy",
-  "service": "calculator"
-}
-```
+→ I'll fix the bug and create a pull request with the
+corrected addition function.
 
-### Mathematical Operations
+## 🔗 Resources
 
-#### Addition
-
-```http
-GET /add?a=5&b=3
-```
-
-**Response:**
-
-```json
-{
-  "operation": "addition",
-  "a": 5,
-  "b": 3,
-  "result": 8
-}
-```
-
-## Web Interface
-
-The calculator includes a fully functional web interface with:
-
-- Visual Calculator: Click or touch interface
-- Keyboard Support: Full keyboard navigation
-- Numbers: 0-9
-- Operations: +, -, *, /
-- Actions: Enter (calculate), Escape (clear), Backspace
-- Error Handling: Visual feedback for invalid operations
-- Responsive Design: Works on desktop, tablet, and mobile
-
-## 🧪 Testing the API
-
-Using curl
-
-```bash
-# Test addition
-curl "http://localhost:5000/add?a=5&b=3"
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-- **FLASK_ENV**: Set to production for production deployment
-- **PORT**: Application port (default: 5000)
-- **WORKERS**: Number of Gunicorn workers (default: 2)
+- Blog Post: [Detailed walkthrough and screenshots] - Coming Soon
+- Testkube MCP: [https://docs.testkube.io/articles/mcp-overview](https://docs.testkube.io/articles/mcp-overview)
+- Calculator Service: fully functional with API endpoints. GitHub repo: [https://github.com/techmaharaj/calculator-service](https://github.com/techmaharaj/calculator-service)
