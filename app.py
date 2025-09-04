@@ -8,7 +8,7 @@ class Calculator:
     @staticmethod
     def add(a, b):
         """Add two numbers"""
-        return a * b #Intentional bug
+        return a + b
     
     @staticmethod
     def subtract(a, b):
