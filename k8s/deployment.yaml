@@ -16,12 +16,20 @@ spec:
     spec:
       containers:
       - name: calculator-service
-        image: atulinfracloud/calculator-service:v2 #This image contains the bug, use v1 for no bug
+        image: atulinfracloud/calculator-service:v2
         ports:
         - containerPort: 5000
         env:
         - name: FLASK_ENV
           value: "production"
+        - name: NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         resources:
           requests:
             memory: "128Mi"

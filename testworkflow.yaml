@@ -6,10 +6,10 @@ metadata:
 spec:
   content:
     git:
-      url: https://github.com/techmaharaj/calculator-service.git
-      branch: olensmar/demo
-      files:
-      - path: tests/calculator-addition.postman_collection.json
+      uri: https://github.com/olensmar/testkube-mcp-demo.git
+      revision: olensmar/demo
+      paths:
+      - tests/calculator-addition.postman_collection.json
   container:
     resources:
       requests:
@@ -22,7 +22,7 @@ spec:
         image: postman/newman:5-alpine
         args:
           - run
-          - calculator-addition.postman_collection.json
+          - tests/calculator-addition.postman_collection.json
           - --reporters
           - cli,json
           - --reporter-json-export
