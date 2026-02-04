@@ -8,19 +8,8 @@ def add():
     try:
         a = float(request.args.get('a', 0))
         b = float(request.args.get('b', 0))
-
-        # NOTE:
-        # The /add endpoint must return the SUM of the provided parameters.
-        # A recent change accidentally returned a*b which breaks the Postman
-        # collection used by Testkube workflow `calculator-addition-test`.
-        result = a + b
-
-        return jsonify({
-            'a': a,
-            'b': b,
-            'operation': 'addition',
-            'result': result
-        })
+        result = a + b  # fixed: addition, not multiplication
+        return jsonify({'a': a, 'b': b, 'operation': 'addition', 'result': result})
     except ValueError:
         return jsonify({'error': 'Invalid input: both parameters must be numbers'}), 400
 
