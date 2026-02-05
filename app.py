@@ -38,27 +38,77 @@ def home():
 @app.route("/add")
 @simulate_latency
 def add():
+    """Add two numbers and return the result.
+
+    NOTE: This endpoint is expected to perform **addition**, not any
+    other operation. External tests like the `calculator-addition-test`
+    Postman collection assume:
+
+      - 5 + 3 = 8
+      - 2.5 + 1.7 = 4.2
+
+    If this implementation is accidentally changed to use
+    multiplication (a * b) or any other operation, those tests will
+    fail (e.g. 5 * 3 = 15, 2.5 * 1.7 = 4.25). This docstring is here
+    to make that contract explicit and help prevent regressions.
+    """
     try:
         a = float(request.args.get("a", 0))
         b = float(request.args.get("b", 0))
 
         # FIX: perform actual addition instead of multiplication
-        # This endpoint is expected to return the mathematical sum of
-        # the two operands so that external tests (for example the
-        # `calculator-addition-test` Postman collection used in
-        # Testkube) receive:
-        #   - 5 + 3 = 8
-        #   - 2.5 + 1.7 = 4.2
-        # If we accidentally multiply here (a * b), the service will
-        # return 15 and 4.25 for the examples above, which makes those
-        # tests fail. Keeping this logic explicitly documented should
-        # help prevent similar regressions.
         result = a + b
 
         action_history.append({"operation": "addition", "a": a, "b": b, "result": result})
         return jsonify({"a": a, "b": b, "operation": "addition", "result": result})
     except ValueError:
         logging.error("Invalid input for addition: a=%s, b=%s", request.args.get("a"), request.args.get("b"))
+        return jsonify({"error": "Invalid input: both parameters must be numbers"}), 400
+
+
+@app.route("/subtract")
+@simulate_latency
+def subtract():
+    try:
+        a = float(request.args.get("a", 0))
+        b = float(request.args.get("b", 0))
+        result = a - b
+        action_history.append({"operation": "subtraction", "a": a, "b": b, "result": result})
+        return jsonify({"a": a, "b": b, "operation": "subtraction", "result": result})
+    except ValueError:
+        logging.error("Invalid input for subtraction: a=%s, b=%s", request.args.get("a"), request.args.get("b"))
+        return jsonify({"error": "Invalid input: both parameters must be numbers"}), 400
+
+
+@app.route("/multiply")
+@simulate_latency
+def multiply():
+    try:
+        a = float(request.args.get("a", 0))
+        b = float(request.args.get("b", 0))
+        result = a * b
+        action_history.append({"operation": "multiplication", "a": a, "b": b, "result": result})
+        return jsonify({"a": a, "b": b, "operation": "multiplication", "result": result})
+    except ValueError:
+        logging.error("Invalid input for multiplication: a=%s, b=%s", request.args.get("a"), request.args.get("b"))
+        return jsonify({"error": "Invalid input: both parameters must be numbers"}), 400
+
+
+@app.route("/divide")
+@simulate_latency
+def divide():
+    try:
+        a = float(request.args.get("a", 0))
+        b = float(request.args.get("b", 1))
+        if b == 0:
+            logging.warning("Division by zero attempted: a=%s, b=%s", a, b)
+            return jsonify({"error": "Division by zero is not allowed"}), 400
+
+        result = a / b
+        action_history.append({"operation": "division", "a": a, "b": b, "result": result})
+        return jsonify({"a": a, "b": b, "operation": "division", "result": result})
+    except ValueError:
+        logging.error("Invalid input for division: a=%s, b=%s", request.args.get("a"), request.args.get("b"))
         return jsonify({"error": "Invalid input: both parameters must be numbers"}), 400
 
 
