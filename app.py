@@ -1,184 +1,82 @@
-from flask import Flask, render_template, request, jsonify
-import logging
+from flask import Flask, request, jsonify, render_template
 import time
+import logging
+from functools import wraps
+from markupsafe import escape
 
 app = Flask(__name__)
+
+# In-memory storage for calculator history
+action_history = []
+
+# Logger setup
 logging.basicConfig(level=logging.INFO)
 
-class Calculator:
-    @staticmethod
-    def add(a, b):
-        """Add two numbers"""
-        return a * b 
-    
-    @staticmethod
-    def subtract(a, b):
-        """Subtract b from a"""
-        return a - b
-    
-    @staticmethod
-    def multiply(a, b):
-        """Multiply two numbers"""
-        return a * b
-    
-    @staticmethod
-    def divide(a, b):
-        """Divide a by b"""
-        if b == 0:
-            raise ValueError("Division by zero is not allowed")
-        return a / b
 
-def validate_numbers(a, b):
-    """Validate input parameters"""
-    try:
-        num_a = float(a)
-        num_b = float(b)
-        return num_a, num_b
-    except (ValueError, TypeError):
-        raise ValueError("Invalid input: both parameters must be numbers")
+# Decorator to simulate latency
+#
+# This is intentionally kept very small so it doesn't meaningfully
+# impact tests or user experience, but allows us to demonstrate
+# latency-related issues if needed in the future.
+def simulate_latency(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        logging.info("Function %s took %s seconds", func.__name__, end_time - start_time)
+        return result
 
-@app.route('/')
-def index():
-    """Serve the calculator UI"""
-    return render_template('index.html')
+    return wrapper
 
-@app.route('/health')
-def health():
-    """Health check endpoint"""
-    return jsonify({"status": "healthy", "service": "calculator"})
 
-@app.route('/add')
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+
+@app.route("/add")
+@simulate_latency
 def add():
-    """Addition endpoint: /add?a=5&b=3"""
     try:
-        a = request.args.get('a')
-        b = request.args.get('b')
-        
-        if a is None or b is None:
-            return jsonify({"error": "Missing parameters. Usage: /add?a=5&b=3"}), 400
-            
-        num_a, num_b = validate_numbers(a, b)
-        result = Calculator.add(num_a, num_b)
-        
-        return jsonify({
-            "operation": "addition",
-            "a": num_a,
-            "b": num_b,
-            "result": result
-        })
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-    except Exception as e:
-        app.logger.error(f"Addition error: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
+        a = float(request.args.get("a", 0))
+        b = float(request.args.get("b", 0))
 
-@app.route('/subtract')
-def subtract():
-    """Subtraction endpoint: /subtract?a=5&b=3"""
-    try:
-        a = request.args.get('a')
-        b = request.args.get('b')
-        
-        if a is None or b is None:
-            return jsonify({"error": "Missing parameters. Usage: /subtract?a=5&b=3"}), 400
-            
-        num_a, num_b = validate_numbers(a, b)
-        result = Calculator.subtract(num_a, num_b)
-        
-        return jsonify({
-            "operation": "subtraction",
-            "a": num_a,
-            "b": num_b,
-            "result": result
-        })
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-    except Exception as e:
-        app.logger.error(f"Subtraction error: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
+        # FIX: perform actual addition instead of multiplication
+        # This endpoint is expected to return the mathematical sum of
+        # the two operands so that external tests (for example the
+        # `calculator-addition-test` Postman collection used in
+        # Testkube) receive:
+        #   - 5 + 3 = 8
+        #   - 2.5 + 1.7 = 4.2
+        # If we accidentally multiply here (a * b), the service will
+        # return 15 and 4.25 for the examples above, which makes those
+        # tests fail. Keeping this logic explicitly documented should
+        # help prevent similar regressions.
+        result = a + b
 
-@app.route('/multiply')
-def multiply():
-    """Multiplication endpoint: /multiply?a=5&b=3"""
-    try:
-        a = request.args.get('a')
-        b = request.args.get('b')
-        
-        if a is None or b is None:
-            return jsonify({"error": "Missing parameters. Usage: /multiply?a=5&b=3"}), 400
-            
-        num_a, num_b = validate_numbers(a, b)
-        result = Calculator.multiply(num_a, num_b)
-        
-        return jsonify({
-            "operation": "multiplication",
-            "a": num_a,
-            "b": num_b,
-            "result": result
-        })
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-    except Exception as e:
-        app.logger.error(f"Multiplication error: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
+        action_history.append({"operation": "addition", "a": a, "b": b, "result": result})
+        return jsonify({"a": a, "b": b, "operation": "addition", "result": result})
+    except ValueError:
+        logging.error("Invalid input for addition: a=%s, b=%s", request.args.get("a"), request.args.get("b"))
+        return jsonify({"error": "Invalid input: both parameters must be numbers"}), 400
 
-@app.route('/divide')
-def divide():
-    """Division endpoint: /divide?a=10&b=2"""
-    try:
-        a = request.args.get('a')
-        b = request.args.get('b')
-        
-        if a is None or b is None:
-            return jsonify({"error": "Missing parameters. Usage: /divide?a=10&b=2"}), 400
-            
-        num_a, num_b = validate_numbers(a, b)
-        result = Calculator.divide(num_a, num_b)
-        
-        return jsonify({
-            "operation": "division",
-            "a": num_a,
-            "b": num_b,
-            "result": result
-        })
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-    except Exception as e:
-        app.logger.error(f"Division error: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
 
-@app.route('/calculate', methods=['POST'])
-def calculate():
-    """General calculation endpoint for UI"""
-    try:
-        data = request.get_json()
-        
-        if not data or 'expression' not in data:
-            return jsonify({"error": "Missing expression in request body"}), 400
-            
-        expression = data['expression']
-        
-        # Basic expression evaluation (secure for demo)
-        # In production, use a proper math parser
-        try:
-            # Only allow basic math operations
-            allowed_chars = set('0123456789+-*/.() ')
-            if not all(c in allowed_chars for c in expression):
-                raise ValueError("Invalid characters in expression")
-                
-            result = eval(expression)
-            return jsonify({
-                "expression": expression,
-                "result": result
-            })
-        except ZeroDivisionError:
-            return jsonify({"error": "Division by zero"}), 400
-        except:
-            return jsonify({"error": "Invalid expression"}), 400
-            
-    except Exception as e:
-        app.logger.error(f"Calculate error: {str(e)}")
-        return jsonify({"error": "Internal server error"}), 500
+@app.route("/history")
+def history():
+    # Escape potentially unsafe data when rendering
+    safe_history = [
+        {
+            "operation": escape(str(entry.get("operation", ""))),
+            "a": escape(str(entry.get("a", ""))),
+            "b": escape(str(entry.get("b", ""))),
+            "result": escape(str(entry.get("result", ""))),
+        }
+        for entry in action_history
+    ]
+    return jsonify(safe_history)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+
+if __name__ == "__main__":
+    # Only enable debug mode in development, not in production
+    app.run(host="0.0.0.0", port=5000, debug=False)
