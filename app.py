@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import logging
+import time
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -8,7 +9,7 @@ class Calculator:
     @staticmethod
     def add(a, b):
         """Add two numbers"""
-        return a * b #Intentional bug
+        return a * b 
     
     @staticmethod
     def subtract(a, b):
