@@ -8,8 +8,14 @@ logging.basicConfig(level=logging.INFO)
 class Calculator:
     @staticmethod
     def add(a, b):
-        """Add two numbers"""
-        return a * b 
+        """Add two numbers
+
+        NOTE: This previously used multiplication (a * b), which broke
+        the calculator-addition-test workflow (e.g. 5 + 3 returned 15).
+        We now perform proper addition while keeping the rest of the
+        service behavior unchanged.
+        """
+        return a + b 
     
     @staticmethod
     def subtract(a, b):
