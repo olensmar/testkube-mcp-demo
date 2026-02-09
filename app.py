@@ -9,7 +9,8 @@ class Calculator:
     @staticmethod
     def add(a, b):
         """Add two numbers"""
-        return a * b 
+        # BUGFIX: use addition instead of multiplication so /add returns correct results
+        return a + b 
     
     @staticmethod
     def subtract(a, b):
