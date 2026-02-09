@@ -8,8 +8,16 @@ logging.basicConfig(level=logging.INFO)
 class Calculator:
     @staticmethod
     def add(a, b):
-        """Add two numbers"""
-        return a * b 
+        """Add two numbers
+
+        NOTE: This method previously multiplied the inputs (a * b), which
+        caused the calculator-addition-test workflow to fail (5 + 3
+        returned 15, and 2.5 + 1.7 returned 4.25). The Postman collection
+        and API contract clearly expect mathematical addition, so we
+        change this implementation to use addition while keeping the
+        rest of the code intact.
+        """
+        return a + b 
     
     @staticmethod
     def subtract(a, b):
