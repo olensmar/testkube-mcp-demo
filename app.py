@@ -8,8 +8,17 @@ logging.basicConfig(level=logging.INFO)
 class Calculator:
     @staticmethod
     def add(a, b):
-        """Add two numbers"""
-        return a * b 
+        """Add two numbers
+
+        NOTE:
+        - This method is intentionally very small because it is used by several
+          HTTP endpoints and Postman tests expect standard arithmetic addition.
+        - A recent change accidentally used multiplication here, which caused
+          responses like 5 + 3 → 15 and 2.5 + 1.7 → 4.25 and broke the tests.
+        """
+        # Perform standard arithmetic addition. This matches the API contract
+        # implied by the /add endpoint and the Postman tests.
+        return a + b 
     
     @staticmethod
     def subtract(a, b):
