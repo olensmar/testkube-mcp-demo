@@ -8,8 +8,17 @@ logging.basicConfig(level=logging.INFO)
 class Calculator:
     @staticmethod
     def add(a, b):
-        """Add two numbers"""
-        return a * b 
+        """Add two numbers
+
+        NOTE: This method previously used multiplication (a * b), which caused
+        the /add endpoint to return incorrect results (e.g., 5 * 3 = 15 instead
+        of 5 + 3 = 8). This broke the Postman-based calculator-addition-test
+        workflow in Testkube.
+
+        The implementation has been corrected to use addition (a + b) while
+        keeping the rest of the service unchanged.
+        """
+        return a + b 
     
     @staticmethod
     def subtract(a, b):
