@@ -9,7 +9,11 @@ class Calculator:
     @staticmethod
     def add(a, b):
         """Add two numbers"""
-        return a * b 
+        # BUGFIX: this previously did multiplication (a * b) which broke the
+        # calculator-addition-test Postman collection. The tests expect
+        # standard arithmetic addition for both integers and floating point
+        # numbers, e.g. 5 + 3 = 8 and 2.5 + 1.7 ≈ 4.2.
+        return a + b
     
     @staticmethod
     def subtract(a, b):
